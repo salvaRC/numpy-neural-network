@@ -8,5 +8,9 @@ setup(
     license='MIT',
     author='Salva Rühling Cachay',
     author_email='salvaruehling@gmail.com',
-    description='Modular neural network from scratch in numpy'
+    description='Modular neural network from scratch in numpy',
+    install_requires=[
+        "numpy",
+    ],
+    python_requires=">=3.8.0"
 )
