@@ -32,18 +32,26 @@ class Sigmoid(Activation):
         return self(x) * (1 - self(x))
 
 
-class ReLU(Activation):
+class LeakyReLU(Activation):
+    def __init__(self, alpha=0.01):
+        self.alpha = alpha
+
     def __call__(self, x):
-        return np.maximum(0, x)
+        return np.maximum(self.alpha * x, x)
 
     def derivative(self, x):
         if not isinstance(x, np.ndarray):
             return 0 if x < 0 else 1
         x = x.copy()
-        neg = x < 0
-        x[neg] = 0
-        x[~neg] = 1
+        negative_dims = x < 0
+        x[negative_dims] = self.alpha
+        x[~negative_dims] = 1
         return x
+
+
+class ReLU(LeakyReLU):
+    def __init__(self):
+        super().__init__(alpha=0)
 
 
 class Sin(Activation):
