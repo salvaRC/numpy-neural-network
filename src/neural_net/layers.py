@@ -13,7 +13,6 @@ class Layer:
 
     def backward(self):
         d_activation = self.activation_func.derivative
-        # print(W.shape, layer.next_layer.gradient.shape, d_activation(layer.activation).shape)
         self.gradient = self.weight.W.T @ self.next_layer.gradient * d_activation(self.activation)
 
     def forward(self):
