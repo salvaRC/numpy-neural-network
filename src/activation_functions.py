@@ -23,6 +23,9 @@ class Linear(Activation):
     def derivative(self, x):
         return 1
 
+    def __str__(self):
+        return "Linear"
+
 
 class Sigmoid(Activation):
     def __call__(self, x):
@@ -30,6 +33,9 @@ class Sigmoid(Activation):
 
     def derivative(self, x):
         return self(x) * (1 - self(x))
+
+    def __str__(self):
+        return "Sigmoid"
 
 
 class LeakyReLU(Activation):
@@ -48,10 +54,16 @@ class LeakyReLU(Activation):
         x[~negative_dims] = 1
         return x
 
+    def __str__(self):
+        return f"Leaky ReLU - alpha={self.alpha}"
+
 
 class ReLU(LeakyReLU):
     def __init__(self):
         super().__init__(alpha=0)
+
+    def __str__(self):
+        return "ReLU"
 
 
 class Sin(Activation):
@@ -61,6 +73,9 @@ class Sin(Activation):
     def derivative(self, x):
         return np.cos(x)
 
+    def __str__(self):
+        return "Sine"
+
 
 class Cos(Activation):
     def __call__(self, x):
@@ -68,6 +83,9 @@ class Cos(Activation):
 
     def derivative(self, x):
         return -np.sin(x)
+
+    def __str__(self):
+        return "Cosine"
 
 
 class Softmax(Activation):
@@ -77,3 +95,45 @@ class Softmax(Activation):
 
     def derivative(self, x):
         pass
+
+    def __str__(self):
+        return "Softmax"
+
+
+class Tanh(Activation):
+    def __call__(self, x):
+        exp_x = np.exp(x)
+        exp__x = np.exp(-x)
+        return (exp_x - exp__x) / (exp_x + exp__x)
+
+    def derivative(self, x):
+        return 1 - self(x) ** 2
+
+    def __str__(self):
+        return "Tanh"
+
+
+class MultiActivations(Activation):
+    def __init__(self, dimensions, activations):
+        self.activations = []
+        neurons_per_act = int(np.ceil(dimensions / len(activations)))
+        prev = 0
+        for act in activations[:-1]:
+            self.activations.append((act, prev, prev + neurons_per_act))
+            prev += neurons_per_act
+        self.activations.append((activations[-1], prev, dimensions))  # take the rest
+
+    def __call__(self, z):
+        x = z.copy()
+        for act_func, s, e in self.activations:
+            x[s:e] = act_func(x[s:e])
+        return x
+
+    def derivative(self, z):
+        x = z.copy()
+        for act_func, s, e in self.activations:
+            x[s:e] = act_func.derivative(x[s:e])
+        return x
+
+    def __str__(self):
+        return ", ".join([str(act) for act, _, _ in self.activations])
